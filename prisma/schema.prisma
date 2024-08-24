@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum roleEnum {
+  ADMIN
+  SELLER
+  USER
+}
+
+enum ProviderEnum {
+  SOCIAL
+  CREDENTIALS
+}
+
+type Avatar {
+  public_id String
+  url       String
+}
+
+model User {
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String           @unique
+  password         String?
+  avatar           Avatar?
+  provider         ProviderEnum     @default(CREDENTIALS)
+  role             roleEnum         @default(USER)
+  isVerified       Boolean          @default(false)
+  courses          Course[]
+  reviews          Review[]
+  questions        Question[]
+  purchasedCourses Order[]
+  notifications    Notification[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now())
+  QuestionAnswer   QuestionAnswer[]
+  CommentReply     CommentReply[]
+}
+
+// ▶️ course schema
+
+type CommentReplies {
+  reply      String
+  userId     String
+  userName   String
+  userAvatar String
+  userRole   roleEnum
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+}
+
+enum orderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERD
+  CANCELLED
+  RETURN
+  RETURN_CANCEL
+}
+
+type PaymentDetails {
+  currency    String
+  price       Float
+  shippingFee Float
+}
+
+model Order {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String?         @db.ObjectId
+  user           User?           @relation(fields: [userId], references: [id])
+  courseId       String?         @db.ObjectId
+  course         Course?         @relation(fields: [courseId], references: [id])
+  orderStatus    orderStatus     @default(PENDING)
+  paymentDetails PaymentDetails? // todo : add later.
+  // todo : something more add soon.
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now())
+}
+
+enum NotificationStatus {
+  PENDING
+  READ
+  UNREAD
+}
+
+model Notification {
+  id        String             @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  message   String
+  status    NotificationStatus @default(UNREAD)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @default(now())
+  user      User?              @relation(fields: [userId], references: [id])
+  userId    String?            @db.ObjectId
+}
+
+model Link {
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  url           String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now())
+  courseVideo   CourseVideo? @relation(fields: [courseVideoId], references: [id])
+  courseVideoId String?      @db.ObjectId
+}
+
+model CommentReply {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  commentReply String
+  userId       String?  @db.ObjectId
+  user         User?    @relation(fields: [userId], references: [id])
+  reviewId     String?  @db.ObjectId
+  review       Review?  @relation(fields: [reviewId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+}
+
+model Review {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  rating         Float
+  comment        String
+  commentReplies CommentReply[]
+  userId         String?        @db.ObjectId
+  courseId       String         @db.ObjectId
+  user           User?          @relation(fields: [userId], references: [id])
+  course         Course         @relation(fields: [courseId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+}
+
+model QuestionAnswer {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  answer     String
+  userId     String?   @db.ObjectId
+  user       User?     @relation(fields: [userId], references: [id])
+  questionId String?   @db.ObjectId
+  questions  Question? @relation(fields: [questionId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
+}
+
+model Question {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  question        String
+  questionAnswers QuestionAnswer[]
+  courseVideo     CourseVideo?     @relation(fields: [courseVideoId], references: [id])
+  courseVideoId   String?          @db.ObjectId
+  user            User?            @relation(fields: [userId], references: [id])
+  userId          String?          @db.ObjectId
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now())
+}
+
+//  review on course and guestion or comment on course video.
+
+model CourseVideo {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  videoUrl     String
+  title        String
+  videoSection String
+  description  String
+  videoLength  Float
+  videoPlayer  String
+  suggestion   String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now())
+  course       Course?    @relation(fields: [courseId], references: [id])
+  courseId     String?    @db.ObjectId
+  questions    Question[]
+  links        Link[]
+  orderId      String?    @db.ObjectId
+}
+
+type TitelObject {
+  title String
+}
+
+model Course {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String?       @db.ObjectId
+  user             User?         @relation(fields: [userId], references: [id])
+  name             String
+  description      String
+  price            Int
+  expectationPrice Int
+  tags             String
+  level            String
+  demoUrl          String
+  thumbnail        Avatar
+  reviews          Review[]
+  purchased        Float         @default(0)
+  benefits         TitelObject[]
+  prerequisites    TitelObject[]
+  coursesVideos    CourseVideo[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @default(now())
+  order            Order[]
+}
+
+// layout
+
+model Faq {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Layout    Layout   @relation(fields: [layoutId], references: [id])
+  layoutId  String   @db.ObjectId
+}
+
+model Category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  image     Avatar
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Layout    Layout?  @relation(fields: [layoutId], references: [id])
+  layoutId  String?  @db.ObjectId
+}
+
+model Banner {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  subTitle  String
+  image     Avatar
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Layout    Layout?  @relation(fields: [layoutId], references: [id])
+  layoutId  String?  @db.ObjectId
+}
+
+model Layout {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  layoutName String
+  isActive   Boolean    @default(true)
+  banners    Banner[]
+  faqs       Faq[]
+  categories Category[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now())
+}
