@@ -10,7 +10,7 @@
     /* Modules */
     "module": "CommonJS",                                /* Specify what module code is generated. */
     "outDir": "./build",
-    "rootDir": "../server",
+    // "rootDir": "../server",
     /* JavaScript Support */
 
     /* Emit */
