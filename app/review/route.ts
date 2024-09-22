@@ -1,10 +1,11 @@
-import express from 'express'
-import { addCommentReply, addReview, getSingleReview } from './controller';
+import express from 'express';
 import { authorizeUser } from '../../middlewares/userAuth';
+import { addCommentReply, addReview, getSingleReview, reviewList } from './controller';
 const router = express.Router()
 
 router.get('/get-single/:id', getSingleReview)
-router.post('/add', authorizeUser, addReview)
-router.post('/comment-reply', authorizeUser, addCommentReply)
+router.get('/reviewList/:courseId', authorizeUser, reviewList)
+router.post('/add-review', authorizeUser, addReview)
+router.post('/add-reply', authorizeUser, addCommentReply)
 
 export default router;

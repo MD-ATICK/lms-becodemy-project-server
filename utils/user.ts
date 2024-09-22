@@ -51,7 +51,7 @@ export const checkUserExistence = async (email: string) => {
 export const createUser = async ({ name, email, password, avatar }: z.infer<typeof registerSchema>) => {
     try {
 
-        if(!password) throw new Error('password!')
+        if (!password) throw new Error('password!')
 
         const hashedPassword = hashSync(password, 10)
         const newUser = await db.user.create({

@@ -30,37 +30,45 @@ export const selectData = () => {
         purchased: true,
         benefits: true,
         prerequisites: true,
+        order: true,
         reviews: true,
-        coursesVideos: {
+        courseSections: {
             select: {
                 id: true,
                 title: true,
-                questions: {
+                courseVideos: {
                     select: {
                         id: true,
-                        question: true,
-                        questionAnswers: {
-                            select: {
-                                id: true,
-                                answer: true,
-                                user: true,
-                                createdAt: true
-                            }
-                        },
-                        user: true,
+                        title: true,
+                        links: true,
+                        // questions: {
+                        //     select: {
+                        //         id: true,
+                        //         question: true,
+                        //         questionAnswers: {
+                        //             select: {
+                        //                 id: true,
+                        //                 answer: true,
+                        //                 user: true,
+                        //                 createdAt: true
+                        //             }
+                        //         },
+                        //         user: true,
+                        //         createdAt: true,
+                        //         updatedAt: true,
+                        //     },
+                        // },
+                        description: true,
+                        videoLength: true,
+                        videoPlayer: true,
+                        suggestion: true,
+                        videoUrl: true,
                         createdAt: true,
-                        updatedAt: true,
-                    },
-                },
-                videoSection: true,
-                description: true,
-                videoLength: true,
-                createdAt: true,
-                updatedAt: true,
+                    }
+                }
             }
         },
         createdAt: true,
-        updatedAt: true,
-
+        updatedAt: true
     }
 }

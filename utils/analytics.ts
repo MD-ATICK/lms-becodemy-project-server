@@ -19,7 +19,7 @@ export async function last12MonthsData<T extends keyof PrismaClient>(model: Pris
     for (let i = 11; i >= 0; i--) {
         const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1); // First day of the month
         const endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - (i - 1), 0); // Last day of the month
-        const monthYear = startDate.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
+        const monthYear = startDate.toLocaleDateString('default', { month: 'short' });
 
 
         const count = await (model as any).count({
@@ -66,7 +66,6 @@ export async function last30DaysData<T extends keyof PrismaClient>(model: Prisma
         last30DaysData.push({ day: dayName, count });
     }
 
-    console.log(last30DaysData)
     return last30DaysData;
 }
 
@@ -88,7 +87,7 @@ export async function last24hoursData<T extends keyof PrismaClient>(model: Prism
         const formatDate = (date: Date) => date.toLocaleDateString('default', { month: 'short', day: 'numeric' });
         const formatTime = (date: Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
-        const periodLabel = `${formatDate(startHour)} ${formatTime(startHour)} to ${formatTime(endHour)}`;
+        const periodLabel = `${formatTime(endHour)}`;
 
 
         const count = await (model as any).count({
@@ -103,7 +102,6 @@ export async function last24hoursData<T extends keyof PrismaClient>(model: Prism
         last24HoursData.push({ hour: periodLabel, count });
     }
 
-    console.log({ last24HoursData })
     return last24HoursData;
 }
 

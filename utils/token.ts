@@ -32,7 +32,7 @@ export const createToken = async (user: User) => {
 export const checkCookieToken = (req: Request) => {
     const token = req.cookies.token
     if (!token) {
-        throw new Error('unauthorized access!')
+        throw new Error('unauthorized access for token!')
     }
 
     return token

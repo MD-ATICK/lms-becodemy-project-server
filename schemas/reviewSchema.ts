@@ -9,5 +9,5 @@ export const reviewSchema = z.object({
 
 export const replyToReviewSchema = z.object({
     reviewId: z.string().nonempty('courseId is required'),
-    commentReply: z.string().nonempty('courseId is required'),
+    reply: z.string().nonempty('courseId is required'),
 })

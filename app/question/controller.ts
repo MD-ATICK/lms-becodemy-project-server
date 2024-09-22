@@ -1,9 +1,36 @@
 import { } from '@prisma/client';
 import { Request, Response } from "express";
+import { redis } from '..';
 import { db } from "../../utils/db";
 import { sendMail } from "../../utils/mail";
+import { getQuestionsByCourseVideoID } from '../../utils/questions';
 import { errorReturn, successReturn } from "../../utils/response";
 
+
+
+const time = 60 * 60
+
+export const singleVideoQuestions = async (req: Request, res: Response) => {
+    try {
+
+        const { courseVideoId } = req.params
+        const redisData = await redis.get(courseVideoId)
+        if (redisData) {
+            console.log('redis question')
+            return successReturn(res, "GET", JSON.parse(redisData))
+        }
+
+        const questions = await getQuestionsByCourseVideoID(courseVideoId)
+
+        await redis.setex(courseVideoId, time, JSON.stringify(questions))
+
+        successReturn(res, "GET", questions)
+
+    } catch (error) {
+        errorReturn(res, (error as Error).message)
+
+    }
+}
 
 // course video id : 66b375445c65b63886655e09
 export const addQuestion = async (req: Request, res: Response) => {
@@ -20,12 +47,17 @@ export const addQuestion = async (req: Request, res: Response) => {
                 question,
                 courseVideoId,
                 userId
+            },
+            include: {
+                questionAnswers: true
             }
         })
-
         const courseVideo = await db.courseVideo.findFirstOrThrow({ where: { id: courseVideoId } })
 
-        await db.notification.create({
+        const questions = await getQuestionsByCourseVideoID(courseVideoId)
+        await redis.setex(courseVideoId, time, JSON.stringify(questions))
+
+        const notification = await db.notification.create({
             data: {
                 userId: req.loggedUser.id,
                 title: "New Question.",
@@ -34,7 +66,7 @@ export const addQuestion = async (req: Request, res: Response) => {
         })
 
 
-        successReturn(res, "POST", newQuestion)
+        successReturn(res, "POST", { newQuestion, notification })
 
     } catch (error) {
         errorReturn(res, (error as Error).message)
@@ -64,11 +96,15 @@ export const addQuestionAnswer = async (req: Request, res: Response) => {
             }
         })
 
+        const courseVideo = await db.courseVideo.findFirstOrThrow({ where: { id: question.courseVideo?.id } })
+
+        const questions = await getQuestionsByCourseVideoID(courseVideo.id)
+        await redis.setex(courseVideo.id, time, JSON.stringify(questions))
 
         if (userId === question.user.id) {
-            const courseVideo = await db.courseVideo.findFirstOrThrow({ where: { id: question.courseVideo?.id } })
 
-           await db.notification.create({
+
+            await db.notification.create({
                 data: {
                     userId: req.loggedUser.id,
                     title: "New Question.",

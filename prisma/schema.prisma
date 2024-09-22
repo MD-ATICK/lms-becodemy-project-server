@@ -65,23 +65,17 @@ enum orderStatus {
   RETURN_CANCEL
 }
 
-type PaymentDetails {
-  currency    String
-  price       Float
-  shippingFee Float
-}
-
 model Order {
-  id             String          @id @default(auto()) @map("_id") @db.ObjectId
-  userId         String?         @db.ObjectId
-  user           User?           @relation(fields: [userId], references: [id])
-  courseId       String?         @db.ObjectId
-  course         Course?         @relation(fields: [courseId], references: [id])
-  orderStatus    orderStatus     @default(PENDING)
-  paymentDetails PaymentDetails? // todo : add later.
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?     @db.ObjectId
+  user        User?       @relation(fields: [userId], references: [id])
+  courseId    String?     @db.ObjectId
+  course      Course?     @relation(fields: [courseId], references: [id])
+  orderStatus orderStatus @default(PENDING)
+  paymentInfo Json // todo : add later.
   // todo : something more add soon.
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
 }
 
 enum NotificationStatus {
@@ -160,22 +154,32 @@ model Question {
 
 //  review on course and guestion or comment on course video.
 
-model CourseVideo {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  videoUrl     String
+model CourseVideoSection {
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
   title        String
-  videoSection String
-  description  String
-  videoLength  Float
-  videoPlayer  String
-  suggestion   String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @default(now())
-  course       Course?    @relation(fields: [courseId], references: [id])
-  courseId     String?    @db.ObjectId
-  questions    Question[]
-  links        Link[]
-  orderId      String?    @db.ObjectId
+  courseVideos CourseVideo[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now())
+  Course       Course        @relation(fields: [courseId], references: [id])
+  courseId     String        @db.ObjectId
+}
+
+model CourseVideo {
+  id                   String              @id @default(auto()) @map("_id") @db.ObjectId
+  videoUrl             String
+  title                String
+  // videoSection         String
+  description          String
+  videoLength          String
+  videoPlayer          String
+  suggestion           String
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @default(now())
+  questions            Question[]
+  links                Link[]
+  orderId              String?             @db.ObjectId
+  CourseVideoSection   CourseVideoSection? @relation(fields: [courseVideoSectionId], references: [id])
+  courseVideoSectionId String?             @db.ObjectId
 }
 
 type TitelObject {
@@ -183,24 +187,24 @@ type TitelObject {
 }
 
 model Course {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  userId           String?       @db.ObjectId
-  user             User?         @relation(fields: [userId], references: [id])
+  id               String               @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String?              @db.ObjectId
+  user             User?                @relation(fields: [userId], references: [id])
   name             String
   description      String
   price            Int
   expectationPrice Int
-  tags             String
+  tags             String[]
   level            String
   demoUrl          String
   thumbnail        Avatar
   reviews          Review[]
-  purchased        Float         @default(0)
+  purchased        Float                @default(0)
   benefits         TitelObject[]
   prerequisites    TitelObject[]
-  coursesVideos    CourseVideo[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @default(now())
+  courseSections   CourseVideoSection[]
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @default(now())
   order            Order[]
 }
 
@@ -226,22 +230,18 @@ model Category {
   layoutId  String?  @db.ObjectId
 }
 
-model Banner {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+type Banner {
   title     String
   subTitle  String
   image     Avatar
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-  Layout    Layout?  @relation(fields: [layoutId], references: [id])
-  layoutId  String?  @db.ObjectId
 }
 
 model Layout {
   id         String     @id @default(auto()) @map("_id") @db.ObjectId
   layoutName String
   isActive   Boolean    @default(true)
-  banners    Banner[]
+  banner     Banner?
   faqs       Faq[]
   categories Category[]
   createdAt  DateTime   @default(now())

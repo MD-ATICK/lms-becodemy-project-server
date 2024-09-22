@@ -1,8 +1,8 @@
 import cloudinary from 'cloudinary'
-import { uploadImageSchema } from "../schemas/courseSchema"
 import { Request, Response } from "express"
-import { zodErrorToString } from "./zodErrorToString"
+import { uploadImageSchema } from "../schemas/courseSchema"
 import { errorReturn, successReturn } from './response'
+import { zodErrorToString } from "./zodErrorToString"
 
 export const uploadImage = async (req: Request, res: Response) => {
     try {
@@ -10,7 +10,6 @@ export const uploadImage = async (req: Request, res: Response) => {
         if (error) return zodErrorToString(error.errors)
 
         if (data.destroy_public_id) {
-            console.log('remove image')
             await cloudinary.v2.uploader.destroy(data.destroy_public_id)
         }
         const myCloud = await cloudinary.v2.uploader.upload(data.image, { folder: data.folder, width: 800 })

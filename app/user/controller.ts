@@ -20,7 +20,7 @@ interface registerMailJwt {
 
 export const register = async (req: Request, res: Response) => {
     try {
-        await db.user.deleteMany({})
+        // await db.user.deleteMany({})
         const { data, error } = registerSchema.safeParse(req.body)
         if (error) return zodErrorToString(error.errors)
 
@@ -138,7 +138,23 @@ export const auth = async (req: Request, res: Response) => {
         if (!req.loggedUser) throw new Error('unAuthorized')
 
         // const user = await getUserById(req.loggedUser?.id)
-        const user = await db.user.findFirstOrThrow({ where: { id: req.loggedUser.id }, include: { courses: true } })
+        const user = await db.user.findFirstOrThrow({
+            where: { id: req.loggedUser.id },
+            include: {
+                purchasedCourses: {
+                    include: {
+                        course: {
+                            include: {
+                                reviews: true, courseSections: {
+                                    include: { courseVideos: true }
+                                }, user: true
+                            }
+                        }
+                    }
+
+                }
+            }
+        })
         successReturn(res, "GET", user)
     } catch (error) {
         errorReturn(res, (error as Error).message)
@@ -183,6 +199,9 @@ export const socialLogin = async (req: Request, res: Response) => {
             include: { courses: true }
         })
 
+
+        const token = await createToken(user)
+        res.cookie('token', token, { sameSite: 'lax', httpOnly: true, expires: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000) })
         successReturn(res, "POST", user)
 
     } catch (error) {
@@ -249,7 +268,7 @@ export const updateProfile = async (req: Request, res: Response) => {
                 data: { name, avatar: { public_id: myCloud.public_id, url: myCloud.secure_url } }
             })
 
-           return successReturn(res, "UPDATE", { message: 'update avatar successfully', user: updateUser })
+            return successReturn(res, "UPDATE", { message: 'update avatar successfully', user: updateUser })
         }
 
         const updateUser = await db.user.update({

@@ -1,16 +1,34 @@
-import { Request, Response } from "express"
-import { errorReturn } from "./response"
-import { db } from "./db"
 import { roleEnum } from "@prisma/client"
-import { redis } from "../app"
 import dotenv from 'dotenv'
-import { getUserById } from "./user"
+import { redis } from "../app"
 import { getCourseById } from "./course"
+import { db } from "./db"
+import { getUserById } from "./user"
 dotenv.config()
 
 export const getAllUsers = async () => {
     try {
         const users = await db.user.findMany({
+            where: {
+                role: 'USER'
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        return users;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getAllAdmins = async () => {
+    try {
+        const users = await db.user.findMany({
+            where: {
+                role: "ADMIN"
+            },
             orderBy: {
                 createdAt: "desc"
             }

@@ -3,7 +3,9 @@ import cookieParser from "cookie-parser";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Request, Response } from "express";
+import http from 'http';
 import Redis from "ioredis";
+import { initSocketServer } from '../socketServer';
 import { rootGet, uploadImage } from '../utils/uploadImage';
 import adminRouter from './admin/route';
 import courseVideoRouter from './course-video/route';
@@ -15,6 +17,7 @@ import questionRouter from './question/route';
 import reviewRouter from './review/route';
 import userRouter from './user/route';
 const app = express()
+const server = http.createServer(app)
 const port = 9999
 
 dotenv.config()
@@ -50,7 +53,8 @@ app.use('/notification', notificationRouter)
 app.use('/layout', layoutRouter)
 
 
-app.listen(port, () => {
+initSocketServer(server)
+server.listen(port, () => {
     console.log("🟢 server listening on port : http://localhost:9999")
 })
 

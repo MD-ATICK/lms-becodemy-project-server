@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
+import ejs from 'ejs'
 import nodemailer from 'nodemailer'
 import path from 'path'
-import ejs from 'ejs'
 
 dotenv.config()
 
