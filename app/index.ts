@@ -6,16 +6,7 @@ import express, { Request, Response } from "express";
 import http from 'http';
 import Redis from "ioredis";
 import { initSocketServer } from '../socketServer';
-import { rootGet, uploadImage } from '../utils/uploadImage';
-import adminRouter from './admin/route';
-import courseVideoRouter from './course-video/route';
-import courseRouter from './course/route';
-import layoutRouter from './layout/route';
-import notificationRouter from './notification/route';
-import orderRouter from './order/route';
-import questionRouter from './question/route';
-import reviewRouter from './review/route';
-import userRouter from './user/route';
+import { rootGet } from '../utils/uploadImage';
 const app = express()
 const server = http.createServer(app)
 const port = 9999
@@ -40,17 +31,17 @@ export const redis: Redis = new Redis({
 
 
 app.get('/', rootGet)
-app.post('/upload-image', uploadImage)
+// app.post('/upload-image', uploadImage)
 
-app.use('/admin', adminRouter)
-app.use('/auth', userRouter)
-app.use('/course', courseRouter)
-app.use('/course-video', courseVideoRouter)
-app.use('/question', questionRouter)
-app.use('/review', reviewRouter)
-app.use('/order', orderRouter)
-app.use('/notification', notificationRouter)
-app.use('/layout', layoutRouter)
+// app.use('/admin', adminRouter)
+// app.use('/auth', userRouter)
+// app.use('/course', courseRouter)
+// app.use('/course-video', courseVideoRouter)
+// app.use('/question', questionRouter)
+// app.use('/review', reviewRouter)
+// app.use('/order', orderRouter)
+// app.use('/notification', notificationRouter)
+// app.use('/layout', layoutRouter)
 
 
 initSocketServer(server)
