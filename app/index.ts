@@ -21,7 +21,7 @@ const server = http.createServer(app)
 const port = 9999
 
 dotenv.config()
-app.use(cors({ origin: ["http://localhost:3000"], credentials: true }))
+app.use(cors({ origin: [process.env.CLIENT_URL || 'http://localhost:9999'], credentials: true }))
 app.use(cookieParser())
 app.use(express.json({ limit: '50mb' }))
 
@@ -33,9 +33,9 @@ cloudinary.config({
 })
 // redos connect
 export const redis: Redis = new Redis({
-    host: 'redis-12262.c17.us-east-1-4.ec2.redns.redis-cloud.com',
-    port: 12262,
-    password: 'pq3rLMQI42cFerIkUFfdGVUkTm9UWF4X'
+    host: 'redis-18821.c258.us-east-1-4.ec2.redns.redis-cloud.com',
+    port: 18821,
+    password: 'v7IrVFa02XcbkbnxfC6ynVcFIPm2imok'
 })
 
 
